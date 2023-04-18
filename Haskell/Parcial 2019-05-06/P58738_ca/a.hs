@@ -22,7 +22,7 @@ nthElement (Node size value left right) n
     getSize (Node size _ _ _ ) = size
 
 mapToElements :: (a -> b) -> STree a -> [Int] -> [Maybe b]
-mapToElements f tree xs = map (\k -> monadElement f (nthElement tree k)) xs
+mapToElements f tree = map (monadElement f . nthElement tree)
   where
     monadElement :: (a -> b) -> Maybe a -> Maybe b
     monadElement f Nothing = Nothing
