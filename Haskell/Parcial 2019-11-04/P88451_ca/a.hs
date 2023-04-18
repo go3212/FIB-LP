@@ -4,7 +4,6 @@ instance Show a => Show (Tree a) where
     show Empty = "()"
     show (Node n left right) = "(" ++ show left ++ "," ++ show n ++ "," ++ show right ++ ")"
 
-
 instance Functor Tree where
     fmap _ Empty = Empty
     fmap f (Node n left right) = Node (f n) (fmap f left) (fmap f right) 
