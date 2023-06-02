@@ -5,7 +5,7 @@ from antlr_files.LambdaCalculusLexer import LambdaCalculusLexer
 from antlr_files.LambdaCalculusListener import LambdaCalculusListener
 from antlr_files.LambdaCalculusParser import LambdaCalculusParser
 from custom_dataclasses.expression import Abstraction, Application, Expression, Variable
-from antlr4 import CommonTokenStream
+from antlr4 import CommonTokenStream, tree
 
 class MyVisitor(LambdaCalculusVisitor):
     def visitApplication(self, ctx:LambdaCalculusParser.ApplicationContext):
@@ -13,7 +13,15 @@ class MyVisitor(LambdaCalculusVisitor):
 
     # Visit a parse tree produced by LambdaCalculusParser#abstraction.
     def visitAbstraction(self, ctx:LambdaCalculusParser.AbstractionContext):
-        return Abstraction(Variable(ctx.VAR().getText()), self.visit(ctx.expression()))
+        # Create a list of Variable instances from the abstraction context.
+        vars = [Variable(var.getText()) for var in ctx.VAR()]
+        
+        # Create a nested abstraction for each variable
+        body = self.visit(ctx.expression())
+        for var in reversed(vars):
+            body = Abstraction(var, body)
+            
+        return body
 
     # Visit a parse tree produced by LambdaCalculusParser#variable.
     def visitVariable(self, ctx:LambdaCalculusParser.VariableContext):
@@ -21,15 +29,15 @@ class MyVisitor(LambdaCalculusVisitor):
 
     # Visit a parse tree produced by LambdaCalculusParser#parenExpression.
     def visitParenExpression(self, ctx:LambdaCalculusParser.ParenExpressionContext):
-        return self.visitChildren(ctx)
+        return self.visit(ctx.expression())
 
 def print_expression(expr: Expression):
     if isinstance(expr, Variable):
         return expr.name
     elif isinstance(expr, Abstraction):
-        return f"(\\{print_expression(expr.variable)}.{print_expression(expr.body)})"
+        return f"(λ{print_expression(expr.var)}.{print_expression(expr.body)})"
     elif isinstance(expr, Application):
-        return f"({print_expression(expr.function)} {print_expression(expr.argument)})"
+        return f"({print_expression(expr.func)}{print_expression(expr.arg)})"
 
 def process(input_str: str):
     # Convertir el string de entrada a un flujo de tokens
@@ -40,8 +48,6 @@ def process(input_str: str):
     # Generar el AST con el parser
     parser = LambdaCalculusParser(token_stream)
     tree = parser.expression()
-
-    print("{}".format(tree.toStringTree(recog=parser)))
 
     # Crear un visitante y usarlo para convertir el AST en un árbol semántico
     visitor = MyVisitor()

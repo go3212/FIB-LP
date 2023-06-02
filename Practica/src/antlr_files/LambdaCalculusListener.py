@@ -8,6 +8,15 @@ else:
 # This class defines a complete listener for a parse tree produced by LambdaCalculusParser.
 class LambdaCalculusListener(ParseTreeListener):
 
+    # Enter a parse tree produced by LambdaCalculusParser#infixMacro.
+    def enterInfixMacro(self, ctx:LambdaCalculusParser.InfixMacroContext):
+        pass
+
+    # Exit a parse tree produced by LambdaCalculusParser#infixMacro.
+    def exitInfixMacro(self, ctx:LambdaCalculusParser.InfixMacroContext):
+        pass
+
+
     # Enter a parse tree produced by LambdaCalculusParser#application.
     def enterApplication(self, ctx:LambdaCalculusParser.ApplicationContext):
         pass
@@ -41,6 +50,24 @@ class LambdaCalculusListener(ParseTreeListener):
 
     # Exit a parse tree produced by LambdaCalculusParser#parenExpression.
     def exitParenExpression(self, ctx:LambdaCalculusParser.ParenExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by LambdaCalculusParser#macroVar.
+    def enterMacroVar(self, ctx:LambdaCalculusParser.MacroVarContext):
+        pass
+
+    # Exit a parse tree produced by LambdaCalculusParser#macroVar.
+    def exitMacroVar(self, ctx:LambdaCalculusParser.MacroVarContext):
+        pass
+
+
+    # Enter a parse tree produced by LambdaCalculusParser#macroDefinition.
+    def enterMacroDefinition(self, ctx:LambdaCalculusParser.MacroDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by LambdaCalculusParser#macroDefinition.
+    def exitMacroDefinition(self, ctx:LambdaCalculusParser.MacroDefinitionContext):
         pass
 
 

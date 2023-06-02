@@ -9,6 +9,11 @@ else:
 
 class LambdaCalculusVisitor(ParseTreeVisitor):
 
+    # Visit a parse tree produced by LambdaCalculusParser#infixMacro.
+    def visitInfixMacro(self, ctx:LambdaCalculusParser.InfixMacroContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by LambdaCalculusParser#application.
     def visitApplication(self, ctx:LambdaCalculusParser.ApplicationContext):
         return self.visitChildren(ctx)
@@ -26,6 +31,16 @@ class LambdaCalculusVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by LambdaCalculusParser#parenExpression.
     def visitParenExpression(self, ctx:LambdaCalculusParser.ParenExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by LambdaCalculusParser#macroVar.
+    def visitMacroVar(self, ctx:LambdaCalculusParser.MacroVarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by LambdaCalculusParser#macroDefinition.
+    def visitMacroDefinition(self, ctx:LambdaCalculusParser.MacroDefinitionContext):
         return self.visitChildren(ctx)
 
 
