@@ -1,15 +1,20 @@
 grammar LambdaCalculus;
 
-// Parser rules
-expression: lambda
-          | VARIABLE
-          | '(' expression ')'
-          | expression expression  // Esto manejará la aplicación
-          ;
 
-lambda: (LAMBDA | '\\') VARIABLE '.' expression ;
+expression          :   LPAR expression RPAR            #parenExpression
+                    |   VAR                             #variable
+                    |   expression ' ' expression       #application
+                    |   LAMBDA VAR DOT expression        #abstraction
+                    ;
 
-// Lexer rules
-LAMBDA: '\u03BB' ;
-VARIABLE: [a-z] ;
-WS: [ \t\r\n]+ -> skip ;
+RPAR        :   ')';
+LPAR        :   '(';
+RCURL       :   '}';
+LCURL       :   '{';
+
+DOT         :   '.';
+
+VAR         :   [a-z];
+
+LAMBDA      :   'λ' | '\\' ;
+WS          :   [ \t\n]+ -> skip ;

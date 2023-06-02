@@ -10,14 +10,14 @@ else:
 
 def serializedATN():
     return [
-        4,1,7,26,2,0,7,0,2,1,7,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,3,0,12,8,0,
-        1,0,1,0,5,0,16,8,0,10,0,12,0,19,9,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,
-        0,2,0,2,0,1,2,0,3,3,5,5,26,0,11,1,0,0,0,2,20,1,0,0,0,4,5,6,0,-1,
-        0,5,12,3,2,1,0,6,12,5,6,0,0,7,8,5,1,0,0,8,9,3,0,0,0,9,10,5,2,0,0,
-        10,12,1,0,0,0,11,4,1,0,0,0,11,6,1,0,0,0,11,7,1,0,0,0,12,17,1,0,0,
-        0,13,14,10,1,0,0,14,16,3,0,0,2,15,13,1,0,0,0,16,19,1,0,0,0,17,15,
-        1,0,0,0,17,18,1,0,0,0,18,1,1,0,0,0,19,17,1,0,0,0,20,21,7,0,0,0,21,
-        22,5,6,0,0,22,23,5,4,0,0,23,24,3,0,0,0,24,3,1,0,0,0,2,11,17
+        4,1,9,23,2,0,7,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,3,0,13,
+        8,0,1,0,1,0,1,0,5,0,18,8,0,10,0,12,0,21,9,0,1,0,0,1,0,1,0,0,0,24,
+        0,12,1,0,0,0,2,3,6,0,-1,0,3,4,5,3,0,0,4,5,3,0,0,0,5,6,5,2,0,0,6,
+        13,1,0,0,0,7,13,5,7,0,0,8,9,5,8,0,0,9,10,5,7,0,0,10,11,5,6,0,0,11,
+        13,3,0,0,1,12,2,1,0,0,0,12,7,1,0,0,0,12,8,1,0,0,0,13,19,1,0,0,0,
+        14,15,10,2,0,0,15,16,5,1,0,0,16,18,3,0,0,3,17,14,1,0,0,0,18,21,1,
+        0,0,0,19,17,1,0,0,0,19,20,1,0,0,0,20,1,1,0,0,0,21,19,1,0,0,0,2,12,
+        19
     ]
 
 class LambdaCalculusParser ( Parser ):
@@ -30,24 +30,25 @@ class LambdaCalculusParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "'('", "')'", "'\\'", "'.'", "'\\u03BB'" ]
+    literalNames = [ "<INVALID>", "' '", "')'", "'('", "'}'", "'{'", "'.'" ]
 
-    symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "LAMBDA", "VARIABLE", "WS" ]
+    symbolicNames = [ "<INVALID>", "<INVALID>", "RPAR", "LPAR", "RCURL", 
+                      "LCURL", "DOT", "VAR", "LAMBDA", "WS" ]
 
     RULE_expression = 0
-    RULE_lambda = 1
 
-    ruleNames =  [ "expression", "lambda" ]
+    ruleNames =  [ "expression" ]
 
     EOF = Token.EOF
     T__0=1
-    T__1=2
-    T__2=3
-    T__3=4
-    LAMBDA=5
-    VARIABLE=6
-    WS=7
+    RPAR=2
+    LPAR=3
+    RCURL=4
+    LCURL=5
+    DOT=6
+    VAR=7
+    LAMBDA=8
+    WS=9
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -65,12 +66,20 @@ class LambdaCalculusParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def lambda_(self):
-            return self.getTypedRuleContext(LambdaCalculusParser.LambdaContext,0)
+
+        def getRuleIndex(self):
+            return LambdaCalculusParser.RULE_expression
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
 
 
-        def VARIABLE(self):
-            return self.getToken(LambdaCalculusParser.VARIABLE, 0)
+    class ApplicationContext(ExpressionContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a LambdaCalculusParser.ExpressionContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def expression(self, i:int=None):
             if i is None:
@@ -79,16 +88,103 @@ class LambdaCalculusParser ( Parser ):
                 return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,i)
 
 
-        def getRuleIndex(self):
-            return LambdaCalculusParser.RULE_expression
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpression" ):
-                listener.enterExpression(self)
+            if hasattr( listener, "enterApplication" ):
+                listener.enterApplication(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpression" ):
-                listener.exitExpression(self)
+            if hasattr( listener, "exitApplication" ):
+                listener.exitApplication(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitApplication" ):
+                return visitor.visitApplication(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class AbstractionContext(ExpressionContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a LambdaCalculusParser.ExpressionContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def LAMBDA(self):
+            return self.getToken(LambdaCalculusParser.LAMBDA, 0)
+        def VAR(self):
+            return self.getToken(LambdaCalculusParser.VAR, 0)
+        def DOT(self):
+            return self.getToken(LambdaCalculusParser.DOT, 0)
+        def expression(self):
+            return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterAbstraction" ):
+                listener.enterAbstraction(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitAbstraction" ):
+                listener.exitAbstraction(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAbstraction" ):
+                return visitor.visitAbstraction(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class VariableContext(ExpressionContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a LambdaCalculusParser.ExpressionContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def VAR(self):
+            return self.getToken(LambdaCalculusParser.VAR, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterVariable" ):
+                listener.enterVariable(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitVariable" ):
+                listener.exitVariable(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable" ):
+                return visitor.visitVariable(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ParenExpressionContext(ExpressionContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a LambdaCalculusParser.ExpressionContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def LPAR(self):
+            return self.getToken(LambdaCalculusParser.LPAR, 0)
+        def expression(self):
+            return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,0)
+
+        def RPAR(self):
+            return self.getToken(LambdaCalculusParser.RPAR, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterParenExpression" ):
+                listener.enterParenExpression(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitParenExpression" ):
+                listener.exitParenExpression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitParenExpression" ):
+                return visitor.visitParenExpression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -101,30 +197,46 @@ class LambdaCalculusParser ( Parser ):
         self.enterRecursionRule(localctx, 0, self.RULE_expression, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 11
+            self.state = 12
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [3, 5]:
-                self.state = 5
-                self.lambda_()
-                pass
-            elif token in [6]:
-                self.state = 6
-                self.match(LambdaCalculusParser.VARIABLE)
-                pass
-            elif token in [1]:
-                self.state = 7
-                self.match(LambdaCalculusParser.T__0)
-                self.state = 8
+            if token in [3]:
+                localctx = LambdaCalculusParser.ParenExpressionContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+
+                self.state = 3
+                self.match(LambdaCalculusParser.LPAR)
+                self.state = 4
                 self.expression(0)
+                self.state = 5
+                self.match(LambdaCalculusParser.RPAR)
+                pass
+            elif token in [7]:
+                localctx = LambdaCalculusParser.VariableContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+                self.state = 7
+                self.match(LambdaCalculusParser.VAR)
+                pass
+            elif token in [8]:
+                localctx = LambdaCalculusParser.AbstractionContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+                self.state = 8
+                self.match(LambdaCalculusParser.LAMBDA)
                 self.state = 9
-                self.match(LambdaCalculusParser.T__1)
+                self.match(LambdaCalculusParser.VAR)
+                self.state = 10
+                self.match(LambdaCalculusParser.DOT)
+                self.state = 11
+                self.expression(1)
                 pass
             else:
                 raise NoViableAltException(self)
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 17
+            self.state = 19
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,1,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -132,15 +244,17 @@ class LambdaCalculusParser ( Parser ):
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
-                    localctx = LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState)
+                    localctx = LambdaCalculusParser.ApplicationContext(self, LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState))
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                    self.state = 13
-                    if not self.precpred(self._ctx, 1):
-                        from antlr4.error.Errors import FailedPredicateException
-                        raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
                     self.state = 14
-                    self.expression(2) 
-                self.state = 19
+                    if not self.precpred(self._ctx, 2):
+                        from antlr4.error.Errors import FailedPredicateException
+                        raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
+                    self.state = 15
+                    self.match(LambdaCalculusParser.T__0)
+                    self.state = 16
+                    self.expression(3) 
+                self.state = 21
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,1,self._ctx)
 
@@ -150,66 +264,6 @@ class LambdaCalculusParser ( Parser ):
             self._errHandler.recover(self, re)
         finally:
             self.unrollRecursionContexts(_parentctx)
-        return localctx
-
-
-    class LambdaContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def VARIABLE(self):
-            return self.getToken(LambdaCalculusParser.VARIABLE, 0)
-
-        def expression(self):
-            return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,0)
-
-
-        def LAMBDA(self):
-            return self.getToken(LambdaCalculusParser.LAMBDA, 0)
-
-        def getRuleIndex(self):
-            return LambdaCalculusParser.RULE_lambda
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLambda" ):
-                listener.enterLambda(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLambda" ):
-                listener.exitLambda(self)
-
-
-
-
-    def lambda_(self):
-
-        localctx = LambdaCalculusParser.LambdaContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 2, self.RULE_lambda)
-        self._la = 0 # Token type
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 20
-            _la = self._input.LA(1)
-            if not(_la==3 or _la==5):
-                self._errHandler.recoverInline(self)
-            else:
-                self._errHandler.reportMatch(self)
-                self.consume()
-            self.state = 21
-            self.match(LambdaCalculusParser.VARIABLE)
-            self.state = 22
-            self.match(LambdaCalculusParser.T__3)
-            self.state = 23
-            self.expression(0)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
         return localctx
 
 
@@ -226,7 +280,7 @@ class LambdaCalculusParser ( Parser ):
 
     def expression_sempred(self, localctx:ExpressionContext, predIndex:int):
             if predIndex == 0:
-                return self.precpred(self._ctx, 1)
+                return self.precpred(self._ctx, 2)
          
 
 

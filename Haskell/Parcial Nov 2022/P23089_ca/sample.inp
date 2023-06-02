@@ -1,0 +1,11 @@
+myUnfoldr (\x -> if x == 0 then Nothing else Just (x, x - 1)) 5
+myReplicate 7 4
+myReplicate '*' 4
+take 8 $ myIterate (*2) 1
+take 4 $ myIterate ('*' :) ""
+myMap (*2) [1..10]
+take 4 $ myMap even [1..]
+show (Empty :: Bst Int)
+show $ add 30 Empty
+show $ add 20 $ add 10 $ add 50 $ add 30 Empty
+myUnfoldr adder (Empty, [3, 1, 4, 5])
