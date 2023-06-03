@@ -4,10 +4,16 @@ from antlr_files.LambdaCalculusVisitor import LambdaCalculusVisitor
 from antlr_files.LambdaCalculusLexer import LambdaCalculusLexer
 from antlr_files.LambdaCalculusListener import LambdaCalculusListener
 from antlr_files.LambdaCalculusParser import LambdaCalculusParser
-from custom_dataclasses.expression import Abstraction, Application, Expression, Variable
+from custom_dataclasses.expression import Abstraction, Application, Expression, Macro, Variable
 from antlr4 import CommonTokenStream, tree
 
+macros = {}
+
+
 class MyVisitor(LambdaCalculusVisitor):
+    def __init__(self, macros):
+        self.macros = macros
+
     def visitApplication(self, ctx:LambdaCalculusParser.ApplicationContext):
         return Application(self.visit(ctx.expression(0)), self.visit(ctx.expression(1)))
 
@@ -31,6 +37,21 @@ class MyVisitor(LambdaCalculusVisitor):
     def visitParenExpression(self, ctx:LambdaCalculusParser.ParenExpressionContext):
         return self.visit(ctx.expression())
 
+    # Rest of your visitor methods...
+    def visitMacroVar(self, ctx:LambdaCalculusParser.MacroVarContext):
+        # This assumes you have a dictionary somewhere mapping macro names to their definitions.
+        # You would need to replace "macros" with your actual macro dictionary.
+        return self.macros[ctx.getText()]
+
+    def visitMacroDefinition(self, ctx:LambdaCalculusParser.MacroDefinitionContext):
+        # Again, replace "macros" with your actual macro dictionary.
+        self.macros[ctx.MACRO_VAR().getText()] = self.visit(ctx.expression())
+        return self.macros[ctx.MACRO_VAR().getText()]
+
+    def visitInfixMacro(self, ctx:LambdaCalculusParser.InfixMacroContext):
+        # Treat the infix macro as an application of the macro to the two arguments.
+        return Application(Application(Macro(ctx.MACRO_VAR().getText()), self.visit(ctx.expression(0))), self.visit(ctx.expression(1)))
+    
 def print_expression(expr: Expression):
     if isinstance(expr, Variable):
         return expr.name
@@ -48,9 +69,9 @@ def process(input_str: str):
     # Generar el AST con el parser
     parser = LambdaCalculusParser(token_stream)
     tree = parser.expression()
-
+    # print(tree.toStringTree(recog=parser))
     # Crear un visitante y usarlo para convertir el AST en un árbol semántico
-    visitor = MyVisitor()
+    visitor = MyVisitor(macros)
     semantic_tree = visitor.visit(tree)
 
     return semantic_tree

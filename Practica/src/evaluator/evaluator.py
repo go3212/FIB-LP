@@ -1,3 +1,5 @@
+from collections import deque
+import copy
 from custom_dataclasses.expression import Abstraction, Expression, Application, Variable
 from visitors.visitor import MyVisitor, print_expression
 
@@ -5,6 +7,10 @@ class Evaluator:
 
     def __init__(self, max_reductions: int):
         self.max_reductions = max_reductions
+        self.queue = deque()
+
+    def add_to_queue(self, term: Expression, conversion: str):
+        self.queue.append((term, conversion))
 
     def is_val(self, term):
         return isinstance(term, Abstraction)
@@ -25,6 +31,7 @@ class Evaluator:
                 replaced_term = self.substitute(reduced_func.body, reduced_func.var, reduced_arg)
                 if (term != replaced_term):
                     print(f"β-reduction: {print_expression(term)} → {print_expression(replaced_term)}")
+                    self.add_to_queue(copy.deepcopy(replaced_term), 'beta')
                 return self.eval(replaced_term, reductions + 1)
             else:
                 return Application(reduced_func, reduced_arg)
@@ -47,6 +54,7 @@ class Evaluator:
                     # α-conversion
                     new_var = Variable(self.new_name(body.var.name))
                     print(f"α-conversion: {body.var.name} → {new_var.name}")
+                    self.add_to_queue(copy.deepcopy(body), 'alpha')
                     new_body = self.substitute(body.body, body.var, new_var)
                     return Abstraction(new_var, self.substitute(new_body, var, val))
                 else:
