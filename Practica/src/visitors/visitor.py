@@ -1,4 +1,5 @@
 
+from types import NoneType
 from antlr4 import InputStream
 from antlr_files.LambdaCalculusVisitor import LambdaCalculusVisitor
 from antlr_files.LambdaCalculusLexer import LambdaCalculusLexer
@@ -44,13 +45,16 @@ class MyVisitor(LambdaCalculusVisitor):
         return self.macros[ctx.getText()]
 
     def visitMacroDefinition(self, ctx:LambdaCalculusParser.MacroDefinitionContext):
+        macroVar = ctx.MACRO_VAR();
+        if macroVar is None:
+            macroVar = ctx.INFIX_MACRO_VAR()
         # Again, replace "macros" with your actual macro dictionary.
-        self.macros[ctx.MACRO_VAR().getText()] = self.visit(ctx.expression())
-        return self.macros[ctx.MACRO_VAR().getText()]
+        self.macros[macroVar.getText()] = self.visit(ctx.expression())
+        return self.macros[macroVar.getText()]
 
     def visitInfixMacro(self, ctx:LambdaCalculusParser.InfixMacroContext):
         # Treat the infix macro as an application of the macro to the two arguments.
-        return Application(Application(Macro(ctx.MACRO_VAR().getText()), self.visit(ctx.expression(0))), self.visit(ctx.expression(1)))
+        return Application(Application(self.macros[ctx.INFIX_MACRO_VAR().getText()], self.visit(ctx.expression(0))), self.visit(ctx.expression(1)))
     
 def print_expression(expr: Expression):
     if isinstance(expr, Variable):

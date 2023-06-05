@@ -10,18 +10,18 @@ else:
 
 def serializedATN():
     return [
-        4,1,11,33,2,0,7,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,4,0,12,8,0,
+        4,1,12,33,2,0,7,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,4,0,12,8,0,
         11,0,12,0,13,1,0,1,0,1,0,1,0,1,0,3,0,21,8,0,1,0,1,0,1,0,1,0,1,0,
-        5,0,28,8,0,10,0,12,0,31,9,0,1,0,0,1,0,1,0,0,1,1,0,2,3,38,0,20,1,
-        0,0,0,2,3,6,0,-1,0,3,4,5,5,0,0,4,5,3,0,0,0,5,6,5,4,0,0,6,21,1,0,
-        0,0,7,21,5,9,0,0,8,21,5,1,0,0,9,11,5,10,0,0,10,12,5,9,0,0,11,10,
-        1,0,0,0,12,13,1,0,0,0,13,11,1,0,0,0,13,14,1,0,0,0,14,15,1,0,0,0,
-        15,16,5,8,0,0,16,21,3,0,0,3,17,18,5,1,0,0,18,19,7,0,0,0,19,21,3,
-        0,0,1,20,2,1,0,0,0,20,7,1,0,0,0,20,8,1,0,0,0,20,9,1,0,0,0,20,17,
-        1,0,0,0,21,29,1,0,0,0,22,23,10,4,0,0,23,28,3,0,0,5,24,25,10,2,0,
-        0,25,26,5,1,0,0,26,28,3,0,0,3,27,22,1,0,0,0,27,24,1,0,0,0,28,31,
-        1,0,0,0,29,27,1,0,0,0,29,30,1,0,0,0,30,1,1,0,0,0,31,29,1,0,0,0,4,
-        13,20,27,29
+        5,0,28,8,0,10,0,12,0,31,9,0,1,0,0,1,0,1,0,0,2,1,0,1,2,1,0,3,4,38,
+        0,20,1,0,0,0,2,3,6,0,-1,0,3,4,5,6,0,0,4,5,3,0,0,0,5,6,5,5,0,0,6,
+        21,1,0,0,0,7,21,5,10,0,0,8,21,7,0,0,0,9,11,5,11,0,0,10,12,5,10,0,
+        0,11,10,1,0,0,0,12,13,1,0,0,0,13,11,1,0,0,0,13,14,1,0,0,0,14,15,
+        1,0,0,0,15,16,5,9,0,0,16,21,3,0,0,2,17,18,7,0,0,0,18,19,7,1,0,0,
+        19,21,3,0,0,1,20,2,1,0,0,0,20,7,1,0,0,0,20,8,1,0,0,0,20,9,1,0,0,
+        0,20,17,1,0,0,0,21,29,1,0,0,0,22,23,10,6,0,0,23,24,5,2,0,0,24,28,
+        3,0,0,7,25,26,10,3,0,0,26,28,3,0,0,4,27,22,1,0,0,0,27,25,1,0,0,0,
+        28,31,1,0,0,0,29,27,1,0,0,0,29,30,1,0,0,0,30,1,1,0,0,0,31,29,1,0,
+        0,0,4,13,20,27,29
     ]
 
 class LambdaCalculusParser ( Parser ):
@@ -34,12 +34,12 @@ class LambdaCalculusParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "'\\u2261'", "'='", "')'", 
-                     "'('", "'}'", "'{'", "'.'" ]
+    literalNames = [ "<INVALID>", "<INVALID>", "'+'", "'\\u2261'", "'='", 
+                     "')'", "'('", "'}'", "'{'", "'.'" ]
 
-    symbolicNames = [ "<INVALID>", "MACRO_VAR", "EQUIV", "EQUAL", "RPAR", 
-                      "LPAR", "RCURL", "LCURL", "DOT", "VAR", "LAMBDA", 
-                      "WS" ]
+    symbolicNames = [ "<INVALID>", "MACRO_VAR", "INFIX_MACRO_VAR", "EQUIV", 
+                      "EQUAL", "RPAR", "LPAR", "RCURL", "LCURL", "DOT", 
+                      "VAR", "LAMBDA", "WS" ]
 
     RULE_expression = 0
 
@@ -47,16 +47,17 @@ class LambdaCalculusParser ( Parser ):
 
     EOF = Token.EOF
     MACRO_VAR=1
-    EQUIV=2
-    EQUAL=3
-    RPAR=4
-    LPAR=5
-    RCURL=6
-    LCURL=7
-    DOT=8
-    VAR=9
-    LAMBDA=10
-    WS=11
+    INFIX_MACRO_VAR=2
+    EQUIV=3
+    EQUAL=4
+    RPAR=5
+    LPAR=6
+    RCURL=7
+    LCURL=8
+    DOT=9
+    VAR=10
+    LAMBDA=11
+    WS=12
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -95,8 +96,8 @@ class LambdaCalculusParser ( Parser ):
             else:
                 return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,i)
 
-        def MACRO_VAR(self):
-            return self.getToken(LambdaCalculusParser.MACRO_VAR, 0)
+        def INFIX_MACRO_VAR(self):
+            return self.getToken(LambdaCalculusParser.INFIX_MACRO_VAR, 0)
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInfixMacro" ):
@@ -236,6 +237,8 @@ class LambdaCalculusParser ( Parser ):
 
         def MACRO_VAR(self):
             return self.getToken(LambdaCalculusParser.MACRO_VAR, 0)
+        def INFIX_MACRO_VAR(self):
+            return self.getToken(LambdaCalculusParser.INFIX_MACRO_VAR, 0)
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterMacroVar" ):
@@ -258,11 +261,13 @@ class LambdaCalculusParser ( Parser ):
             super().__init__(parser)
             self.copyFrom(ctx)
 
-        def MACRO_VAR(self):
-            return self.getToken(LambdaCalculusParser.MACRO_VAR, 0)
         def expression(self):
             return self.getTypedRuleContext(LambdaCalculusParser.ExpressionContext,0)
 
+        def MACRO_VAR(self):
+            return self.getToken(LambdaCalculusParser.MACRO_VAR, 0)
+        def INFIX_MACRO_VAR(self):
+            return self.getToken(LambdaCalculusParser.INFIX_MACRO_VAR, 0)
         def EQUIV(self):
             return self.getToken(LambdaCalculusParser.EQUIV, 0)
         def EQUAL(self):
@@ -323,7 +328,12 @@ class LambdaCalculusParser ( Parser ):
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 8
-                self.match(LambdaCalculusParser.MACRO_VAR)
+                _la = self._input.LA(1)
+                if not(_la==1 or _la==2):
+                    self._errHandler.recoverInline(self)
+                else:
+                    self._errHandler.reportMatch(self)
+                    self.consume()
                 pass
 
             elif la_ == 4:
@@ -341,13 +351,13 @@ class LambdaCalculusParser ( Parser ):
                     self.state = 13 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if not (_la==9):
+                    if not (_la==10):
                         break
 
                 self.state = 15
                 self.match(LambdaCalculusParser.DOT)
                 self.state = 16
-                self.expression(3)
+                self.expression(2)
                 pass
 
             elif la_ == 5:
@@ -355,10 +365,15 @@ class LambdaCalculusParser ( Parser ):
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 17
-                self.match(LambdaCalculusParser.MACRO_VAR)
+                _la = self._input.LA(1)
+                if not(_la==1 or _la==2):
+                    self._errHandler.recoverInline(self)
+                else:
+                    self._errHandler.reportMatch(self)
+                    self.consume()
                 self.state = 18
                 _la = self._input.LA(1)
-                if not(_la==2 or _la==3):
+                if not(_la==3 or _la==4):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
@@ -381,27 +396,27 @@ class LambdaCalculusParser ( Parser ):
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
                     if la_ == 1:
-                        localctx = LambdaCalculusParser.ApplicationContext(self, LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState))
+                        localctx = LambdaCalculusParser.InfixMacroContext(self, LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
                         self.state = 22
-                        if not self.precpred(self._ctx, 4):
+                        if not self.precpred(self._ctx, 6):
                             from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
+                            raise FailedPredicateException(self, "self.precpred(self._ctx, 6)")
                         self.state = 23
-                        self.expression(5)
+                        self.match(LambdaCalculusParser.INFIX_MACRO_VAR)
+                        self.state = 24
+                        self.expression(7)
                         pass
 
                     elif la_ == 2:
-                        localctx = LambdaCalculusParser.InfixMacroContext(self, LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState))
+                        localctx = LambdaCalculusParser.ApplicationContext(self, LambdaCalculusParser.ExpressionContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 24
-                        if not self.precpred(self._ctx, 2):
-                            from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
                         self.state = 25
-                        self.match(LambdaCalculusParser.MACRO_VAR)
+                        if not self.precpred(self._ctx, 3):
+                            from antlr4.error.Errors import FailedPredicateException
+                            raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
                         self.state = 26
-                        self.expression(3)
+                        self.expression(4)
                         pass
 
              
@@ -431,11 +446,11 @@ class LambdaCalculusParser ( Parser ):
 
     def expression_sempred(self, localctx:ExpressionContext, predIndex:int):
             if predIndex == 0:
-                return self.precpred(self._ctx, 4)
+                return self.precpred(self._ctx, 6)
          
 
             if predIndex == 1:
-                return self.precpred(self._ctx, 2)
+                return self.precpred(self._ctx, 3)
          
 
 
