@@ -1,0 +1,16 @@
+MACRO_VAR=1
+INFIX_MACRO_VAR=2
+EQUIV=3
+EQUAL=4
+RPAR=5
+LPAR=6
+DOT=7
+VAR=8
+LAMBDA=9
+WS=10
+'+'=2
+'≡'=3
+'='=4
+')'=5
+'('=6
+'.'=7
