@@ -16,7 +16,7 @@ async def author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('/start\n/author\n/help\n/macros\nλ-Calculus expression!')
 
-async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def macros_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     macros = GetMacros()
     if len(macros) == 0:
         macro_message = "There are no defined macros!"
@@ -64,7 +64,7 @@ def telegram_bot(token: str) -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("author", author))
     application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("macros", macros))
+    application.add_handler(CommandHandler("macros", macros_command))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, process_expression))
 
     application.run_polling()
