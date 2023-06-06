@@ -17,8 +17,6 @@ EQUAL             : '=';
 
 RPAR        :   ')';
 LPAR        :   '(';
-RCURL       :   '}';
-LCURL       :   '{';
 
 DOT         :   '.';
 

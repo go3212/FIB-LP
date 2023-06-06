@@ -15,9 +15,4 @@ class Abstraction:
     var: Variable
     body: Expression
 
-@dataclass
-class Macro:
-    name: str
-    body: Expression
-
-Expression = Abstraction | Application | Variable | Macro
+Expression = Abstraction | Application | Variable

@@ -1,38 +1,43 @@
-import uuid
-from telegram import ForceReply, Update
-from visitors.visitor import process, print_expression
+import copy
+from uuid import uuid4
+from telegram import Update
+from visitors.visitor import GetMacros, process, print_expression
 import pydot
 from evaluator.evaluator import *
 from telegram.ext import Application as App, CommandHandler, ContextTypes, MessageHandler, filters
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('Bienvenido al AChurch Bot!')
+    user_name = update.message.from_user.first_name 
+    await update.message.reply_text(f'AChurchBot!\nWelcome {user_name}!')
 
 async def author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('AChurch Bot desarrollado por Fernando Gómez Navia.')
+    await update.message.reply_text('AChurchBot!\n@ Fernando Gómez Navia, 2023')
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('Aqui hi ha algunes instruccions...')
+    await update.message.reply_text('/start\n/author\n/help\n/macros\nλ-Calculus expression!')
 
 async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('Aquí tens les macros actualment definides...')
+    macros = GetMacros()
+    if len(macros) == 0:
+        macro_message = "There are no defined macros!"
+    else:
+        macro_message = '\n'.join(f'{k}≡{print_expression(v)}' for k, v in macros.items())
+    await context.bot.send_message(chat_id=update.message.chat_id, text=macro_message)
 
 async def process_expression(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Obtén la expressió del missatge entrant
     expression_str = update.message.text
-    # Processa la expressió
-    response_str = process(expression_str)  # Assumeix que teniu una funció process que es pot cridar
+    response_str = process(expression_str) 
     await context.bot.send_message(chat_id=update.message.chat_id, text=print_expression(response_str))
     draw_tree(response_str, "tree.png")
     await context.bot.send_photo(chat_id=update.message.chat_id, photo=open('tree.png', 'rb'))
     tree_copy = copy.deepcopy(response_str)
-    # print(print_expression(tree))
     evaluator = Evaluator(200)
-    # initial evaluation
     prev_expr = copy.deepcopy(tree_copy)
     expr, operator = evaluator.eval(tree_copy)
+    if operator != "None":
+        count = 1
+    else: count = 0
 
-    # evaluation loop
     while operator != "None":
         str_prev_expr = print_expression(prev_expr)
         str_expr = print_expression(expr)
@@ -40,10 +45,18 @@ async def process_expression(update: Update, context: ContextTypes.DEFAULT_TYPE)
             break
         text = f"{str_prev_expr} -> {operator} -> {str_expr}"
         await context.bot.send_message(chat_id=update.message.chat_id, text=text)
-        draw_tree(expr, "tree.png")
-        await context.bot.send_photo(chat_id=update.message.chat_id, photo=open('tree.png', 'rb'))
+
         prev_expr = copy.deepcopy(expr)
         expr, operator = evaluator.eval(expr)
+        if operator != "None": count += 1
+    
+    if count == 0:
+        await context.bot.send_message(chat_id=update.message.chat_id, text="The expression is irreducible!")
+    else:
+        await context.bot.send_message(chat_id=update.message.chat_id, text=print_expression(expr))
+        draw_tree(expr, "tree.png")
+        await context.bot.send_photo(chat_id=update.message.chat_id, photo=open('tree.png', 'rb'))
+    
 
 def telegram_bot(token: str) -> None:
     application = App.builder().token(token).build()
@@ -56,17 +69,18 @@ def telegram_bot(token: str) -> None:
 
     application.run_polling()
 
-
 def generate_graph(node, graph=None, parent_node=None):
     if graph is None:
-        graph = pydot.Dot(graph_type='graph')
+        graph = pydot.Dot(graph_type='digraph')
 
-    if isinstance(node, Variable):
-        var_node = pydot.Node(str(id(node)), label=node.name, shape='ellipse')
+    if isinstance(node, Variable): 
+        var_node = pydot.Node(str(uuid4()), label=node.name, shape='ellipse')
         graph.add_node(var_node)
+        if parent_node:
+            graph.add_edge(pydot.Edge(parent_node, var_node))
 
     elif isinstance(node, Application):
-        app_node = pydot.Node(str(id(node)), label='@', shape='rectangle')
+        app_node = pydot.Node(str(uuid4()), label='@', shape='rectangle')
         graph.add_node(app_node)
         if parent_node:
             graph.add_edge(pydot.Edge(parent_node, app_node))
@@ -74,19 +88,24 @@ def generate_graph(node, graph=None, parent_node=None):
         generate_graph(node.arg, graph, app_node)
 
     elif isinstance(node, Abstraction):
-        abs_node = pydot.Node(str(id(node)), label='λ', shape='diamond')
+        abs_node = pydot.Node(str(uuid4()), label=f'λ{node.var.name}', shape='diamond')
         graph.add_node(abs_node)
         if parent_node:
             graph.add_edge(pydot.Edge(parent_node, abs_node))
-        var_node = pydot.Node(str(id(node.var)), label=node.var.name, shape='ellipse')
-        graph.add_node(var_node)
-        graph.add_edge(pydot.Edge(abs_node, var_node, style='dashed'))
         generate_graph(node.body, graph, abs_node)
+        mark_bound_variables(graph, abs_node, node.var.name, abs_node)
 
     return graph
 
+def mark_bound_variables(graph, abs_node, var_name, current):
+    for edge in graph.get_edges():
+        if edge.get_source() == current.get_name():
+            target_node = graph.get_node(edge.get_destination())[0]
+            if target_node.get_label() == var_name:
+                graph.add_edge(pydot.Edge(target_node, abs_node, style='dashed'))
+            elif target_node.get_shape() == 'rectangle' or target_node.get_shape() == 'diamond':
+                mark_bound_variables(graph, abs_node, var_name, target_node)
 
 def draw_tree(tree, filename):
     graph = generate_graph(tree)
     graph.write(filename, format='png')
-
