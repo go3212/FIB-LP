@@ -28,7 +28,7 @@ Para poder utilizar el bot, necesitarás tener instalado Python 3.7 o superior, 
 Puedes instalar estas librerías utilizando el siguiente comando:
 
 ```sh
-pip install antlr4-python3-runtime python-telegram-bot pydot
+pip install antlr4-python3-runtime python-telegram-bot pydot dataclasses uuid types
 ```
 
 Es posible que necesites generar los ficheros de antlr, lo puedes hacer con el siguiente comando, la version de antlr recomendada es la 4.13.0
